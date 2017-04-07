@@ -8,33 +8,53 @@
 
 import UIKit
 
-class ImageDetailController: UIViewController {
+class ImageDetailController: UIViewController, UIScrollViewDelegate {
     
-    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var scrollView: UIScrollView!
+    var imageView : UIImageView?
     
-    var imageData : Data? {
-        didSet {
-            if let data = imageData {
-                print("data:", data)
-                print("imageView:", imageView)
-                imageView.image = UIImage(data: data)
-            } else {
-                print("data is nil :'(")
-            }
-        }
-    }
+    var imageData : Data?
     
-    var viewTitle : String? {
-        didSet {
-            self.title = viewTitle
-        }
-    }
+    var viewTitle : String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        if let data = imageData, let newTitle = viewTitle {
+            self.title = newTitle
+            
+            imageView = UIImageView(image: UIImage(data: data))
+            
+            if let imageView = imageView {
+                print("adding subview")
+                self.scrollView.addSubview(imageView)
+                self.scrollView.contentSize = imageView.frame.size
+            }
+        }
     }
-
-
+    
+    private func updateMinZoomScaleForSize(size: CGSize) {
+        print("in updateMinZoomScale")
+        if let imageView = imageView {
+            let widthScale = size.width / imageView.bounds.width
+            let heightScale = size.height / imageView.bounds.height
+            let minScale = min(widthScale, heightScale)
+            
+            print("changing minimumZoomScale")
+            scrollView.minimumZoomScale = minScale
+            
+            scrollView.zoomScale = minScale
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        print("viewDidLayoutSubviews")
+        
+        updateMinZoomScaleForSize(size: scrollView.bounds.size)
+    }
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imageView
+    }
 }

@@ -38,17 +38,24 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("asdfasdf")
-        
+        print("preparing for segue")
         if let cellSender = sender as! CollectionViewCell?,
                 let destination = segue.destination as? ImageDetailController {
-            if let data = cellSender.imageData {
-                print("yop")
+            if let data = cellSender.imageData, let detailTitle = cellSender.detailTitle {
+                print("setting data and title")
                 destination.imageData = data
-//                destination.viewTitle = cellSender.
+                destination.viewTitle = detailTitle
             } else {
                 print("data not loaded yet")
             }
         }
+    }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        if let cellSender = sender as! CollectionViewCell? {
+            return cellSender.imageData != nil && cellSender.detailTitle != nil
+        }
+        
+        return false
     }
 }
